@@ -1,6 +1,6 @@
 # -*- coding utf-8 -*-
 
-from lib_manager import load_classes
+from pyLibManager.lib_manager import load_classes
 
 clazzDefInfos = [
     {'module': 'test.sample001', 'classes': []}
