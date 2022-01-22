@@ -47,15 +47,6 @@ def load_classes(clazzDefInfos):
                     #a[1]('hello')
 
 if __name__ == '__main__':
-    clazzDefInfos = [
-        {'module': 'test.sample001', 'classes': []}
-    ]
-    load_classes(clazzDefInfos)
-    for clazzDef in clazzDefInfos:
-        print('module : %s' % (clazzDef['module']))
-        for clazzez in clazzDef['classes']:
-            print('\tclass name : %s' % clazzez['name'])
-            for method in clazzez['methods']:
-                print('\t\tmethod name : %s' % method['name'])
-                #method['method']('hello')
+    print('このモジュールから起動しないで下さい ...')
+
 #[EOF]
