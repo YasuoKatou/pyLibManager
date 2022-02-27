@@ -45,4 +45,8 @@ class SampleAP002:
         run_lib_manager(self.myAppDef)
         print('end SampleAP002.run')
 
+if __name__ == '__main__':
+    ap = SampleAP002()
+    ap.run()
+
 #[EOF]
