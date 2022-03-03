@@ -3,6 +3,8 @@
 import inspect
 from importlib import import_module
 from inspect import signature
+import logging
+import logging.config
 
 class XNoMethodError(Exception):
     pass
@@ -12,6 +14,11 @@ class XNoClassError(Exception):
 
 class XNoModuleError(Exception):
     pass
+
+_logger = logging.getLogger(__name__)
+def setLogConfig(log_conf):
+    logging.config.dictConfig(log_conf)
+    _logger = logging.getLogger(__name__)
 
 def load_classes(appDef, defPrint=False):
     '''
@@ -39,7 +46,7 @@ def load_classes(appDef, defPrint=False):
             if name.startswith('_'):
                 continue
             if defPrint:
-                print('class name : %s [%s]' % (name, mName, ))
+                _logger.info('class name : %s [%s]' % (name, mName, ))
             methods = []
             clazzDef['classes'].append({'name': name, 'methods': methods})
             clazz = getattr(m, name)
@@ -52,7 +59,7 @@ def load_classes(appDef, defPrint=False):
                 if len(p) <= 1:
                     # 引数は１つ以上
                     if defPrint:
-                        print ('\tmethod name : %s' % (name, ))
+                        _logger.info('\tmethod name : %s' % (name, ))
                     methods.append({
                         'name': name,
                         'method': a[1]

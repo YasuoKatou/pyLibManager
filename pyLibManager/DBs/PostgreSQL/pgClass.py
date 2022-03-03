@@ -1,21 +1,26 @@
 # -*- coding utf-8 -*-
 
+import logging
+import logging.config
 import os
 import psycopg2
 import psycopg2.extras
 
 class PG:
+    def setLogConfig(self, log_conf):
+        logging.config.dictConfig(log_conf)
+        self.logger = logging.getLogger(__name__)
 
     def setDns(self, dnsDict):
         wk = []
         for key, value in dnsDict.items():
             wk.append('%s=%s' % (key, str(value), ))
         self.dns = ' '.join(wk)
-        print('dns : %s' % (self.dns, ))
+        self.logger.debug('dns : %s' % (self.dns, ))
 
     def setDnsString(self, dnsString):
         self.dns = dnsString
-        print('dns : %s' % (self.dns, ))
+        self.logger.debug('dns : %s' % (self.dns, ))
 
     def getDnsByEnv(self, env_name):
         dns = os.environ.get(env_name)
@@ -31,6 +36,6 @@ class PG:
     def showServerVersion(self, cur):
         cur.execute("select version() as ver")
         row = cur.fetchone()
-        print(row['ver'])
+        self.logger.info(row['ver'])
 
 #[EOF]
