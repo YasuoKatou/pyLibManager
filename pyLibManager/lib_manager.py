@@ -104,7 +104,7 @@ def _makeDto(appDef, path, result):
     parent[p] = result
 
 def run_lib_manager(appDef):
-    for methodDef in appDef['app']:
+    for methodDef in appDef['app']['config']:
         m = _getMethod(appDef, methodDef)
         #print(m)
         p = _getParam(appDef, methodDef)
