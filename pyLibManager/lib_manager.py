@@ -20,7 +20,7 @@ def setLogConfig(log_conf):
     logging.config.dictConfig(log_conf)
     _logger = logging.getLogger(__name__)
 
-def load_classes(appDef, defPrint=False):
+def load_classes(appDef, defPrint=False, newCallback=None):
     '''
         [
             'module': 'xxxxx'      (I)
@@ -51,6 +51,8 @@ def load_classes(appDef, defPrint=False):
             clazzDef['classes'].append({'name': name, 'methods': methods})
             clazz = getattr(m, name)
             instance = clazz()
+            if newCallback:
+                newCallback(instance)
             for a in inspect.getmembers(instance, inspect.ismethod):
                 name = a[0]
                 if name.startswith('_'):
