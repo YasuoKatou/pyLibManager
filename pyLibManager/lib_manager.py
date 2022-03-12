@@ -58,15 +58,12 @@ def load_classes(appDef, defPrint=False, newCallback=None):
                 if name.startswith('_'):
                     continue
                 p = signature(a[1]).parameters
-                if len(p) <= 1:
-                    # 引数は１つ以上
-                    if defPrint:
-                        _logger.info('\tmethod name : %s' % (name, ))
-                    methods.append({
-                        'name': name,
-                        'method': a[1]
-                    })
-                    #a[1]('hello')
+                if defPrint:
+                    _logger.info('\tmethod name : %s' % (name, ))
+                methods.append({
+                    'name': name,
+                    'method': a[1]
+                })
 
 def _getMethod(appDef, methodDef):
     mn = methodDef['method']
@@ -83,17 +80,26 @@ def _getMethod(appDef, methodDef):
     raise XNoModuleError('[%s] module not found' % (c[0], ))
 
 def _getParam(appDef, methodDef):
+    def _getParamItem(item):
+        r = None
+        for w in item.split('.'):
+            if r:
+                r = r[w]
+            else:
+                r = appDef[w]
+        return r
+
     if 'param' not in methodDef:
         return None
     if not methodDef['param']:
         return None
-    r = None
-    for w in methodDef['param'].split('.'):
-        if r:
-            r = r[w]
-        else:
-            r = appDef[w]
-    return r
+    if type(methodDef['param']) is list:
+        r = []
+        for item in methodDef['param']:
+            r.append(_getParamItem(item))
+        return tuple(r)
+    else:
+        return _getParamItem(methodDef['param'])
 
 def _makeDto(appDef, path, result):
     r = appDef
@@ -112,7 +118,10 @@ def run_lib_manager(appDef):
         p = _getParam(appDef, methodDef)
         #print(p)
         if p:
-            r = m(p)
+            if type(p) is tuple:
+                r = m(*p)
+            else:
+                r = m(p)
         else:
             r = m()
         if 'result' in methodDef:
