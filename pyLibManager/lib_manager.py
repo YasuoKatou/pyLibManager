@@ -36,10 +36,9 @@ def _findModule(fqcn):
     else:
         _logger.info('LIB_MANAGER_PATH not defined ...')
         ep = sys.path
-    _logger.info('module search path : %s' % (ep))
+    _logger.debug('module search path : %s' % (ep))
     rp = '%s.py' % (fqcn.replace('.', '/'), )
     for p in ep:
-        _logger.debug('check : %s' % (p))
         fp = pathlib.Path(p) / rp
         if fp.exists():
             _logger.info('load : %s' % (str(fp)))
