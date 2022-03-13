@@ -26,7 +26,7 @@
             "handlers": ["consoleHandler"],
             "propagate": false
         },
-        "pyLibManager.DBs.PostgreSQL.pgClass": {
+        "pgClass": {
             "level": "DEBUG",
             "handlers": ["consoleHandler"],
             "propagate": false
