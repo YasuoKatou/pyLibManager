@@ -1,10 +1,15 @@
 # -*- coding utf-8 -*-
 
 import inspect
+import importlib.util
 from importlib import import_module
 from inspect import signature
 import logging
 import logging.config
+from math import fabs
+import os
+import pathlib
+import sys
 
 class XNoMethodError(Exception):
     pass
@@ -19,6 +24,30 @@ _logger = logging.getLogger(__name__)
 def setLogConfig(log_conf):
     logging.config.dictConfig(log_conf)
     _logger = logging.getLogger(__name__)
+
+def _findModule(fqcn):
+    '''
+        環境変数[LIB_MANAGER_PATH]をベースに指定のfqcnのモジュールをロードする.
+        環境変数[LIB_MANAGER_PATH]は、os.pathsep(posix:':', windows:';')で区切り、複数指定可能.
+    '''
+    ep = os.environ.get('LIB_MANAGER_PATH')
+    if ep:
+        ep = ep.split(os.pathsep)
+    else:
+        _logger.info('LIB_MANAGER_PATH not defined ...')
+        ep = sys.path
+    _logger.info('module search path : %s' % (ep))
+    rp = '%s.py' % (fqcn.replace('.', '/'), )
+    for p in ep:
+        _logger.debug('check : %s' % (p))
+        fp = pathlib.Path(p) / rp
+        if fp.exists():
+            _logger.info('load : %s' % (str(fp)))
+            spec = importlib.util.spec_from_file_location(fp.stem, str(fp))
+            modulevar = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(modulevar)
+            return modulevar
+    assert False, '[%s] not found ...' % (fqcn, )
 
 def load_classes(appDef, defPrint=False, newCallback=None):
     '''
@@ -39,7 +68,7 @@ def load_classes(appDef, defPrint=False, newCallback=None):
     '''
     for clazzDef in appDef['clazzDef']:
         mName = clazzDef['module']
-        m = import_module(mName)
+        m = _findModule(mName)
         #print(m)
         for a in inspect.getmembers(m, inspect.isclass):
             name = a[0]
@@ -128,6 +157,7 @@ def run_lib_manager(appDef):
             _makeDto(appDef, methodDef['result'], r)
 
 if __name__ == '__main__':
-    print('このモジュールから起動しないで下さい ...')
+    #_findModule('pyLibManager.DBs.PostgreSQL.pgClass')
+    assert False , 'このモジュールから起動しないで下さい ...'
 
 #[EOF]
