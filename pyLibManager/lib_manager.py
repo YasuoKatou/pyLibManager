@@ -33,13 +33,17 @@ def _findModule(fqcn):
     ep = os.environ.get('LIB_MANAGER_PATH')
     if ep:
         ep = ep.split(os.pathsep)
+        for p in ep:
+            if p not in sys.path:
+                sys.path.append(p)
     else:
         _logger.info('LIB_MANAGER_PATH not defined ...')
-        ep = sys.path
-    _logger.debug('module search path : %s' % (ep))
+    ep = sys.path
+    #_logger.debug('module search path : %s' % (ep))
     rp = '%s.py' % (fqcn.replace('.', '/'), )
     for p in ep:
         fp = pathlib.Path(p) / rp
+        _logger.debug('module search path : %s' % (str(fp)))
         if fp.exists():
             _logger.info('load : %s' % (str(fp)))
             spec = importlib.util.spec_from_file_location(fp.stem, str(fp))
