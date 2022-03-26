@@ -42,6 +42,9 @@ class PG:
         assert self._conn_pool, '[getConn] コネクションプールが初期化されていません.'
         return self._conn_pool.getconn()
 
+    def commit(self, conn):
+        conn.commit()
+
     def putConn(self, conn):
         assert self._conn_pool, '[putConn] コネクションプールが初期化されていません.'
         self._conn_pool.putconn(conn)
