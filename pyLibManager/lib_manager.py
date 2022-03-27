@@ -143,8 +143,9 @@ def _makeDto(appDef, path, result):
         r = r[p]
     parent[p] = result
 
-def run_lib_manager(appDef):
-    for methodDef in appDef['app']['config']:
+def run_lib_manager(appDef, app_config = None):
+    appConfig = app_config if app_config else appDef['app']['config']
+    for methodDef in appConfig:
         m = _getMethod(appDef, methodDef)
         #print(m)
         p = _getParam(appDef, methodDef)
@@ -156,7 +157,18 @@ def run_lib_manager(appDef):
                 r = m(p)
         else:
             r = m()
-        if 'result' in methodDef:
+        if m.__name__.startswith('is'):
+            if r:
+                if 'true' in methodDef:
+                    run_lib_manager(appDef, methodDef['true'])
+                else:
+                    _logger.info('none true action at ' % (m.__name__, ))
+            else:
+                if 'false' in methodDef:
+                    run_lib_manager(appDef, methodDef['false'])
+                else:
+                    _logger.info('none false action at ' % (m.__name__, ))
+        elif 'result' in methodDef:
             _makeDto(appDef, methodDef['result'], r)
 
 if __name__ == '__main__':
