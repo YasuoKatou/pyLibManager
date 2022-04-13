@@ -131,7 +131,12 @@ def _getParam(appDef, methodDef):
             r.append(_getParamItem(item))
         return tuple(r)
     else:
-        return _getParamItem(methodDef['param'])
+        p = _getParamItem(methodDef['param'])
+        if p == None:
+            p = (p, )
+        elif isinstance(p, list):
+            p = (p, )
+        return p
 
 def _makeDto(appDef, path, result):
     r = appDef
@@ -143,33 +148,57 @@ def _makeDto(appDef, path, result):
         r = r[p]
     parent[p] = result
 
+def _execute_method2(appDef, methodDef):
+    m = _getMethod(appDef, methodDef)
+    #print(m)
+    p = _getParam(appDef, methodDef)
+    #print(p)
+    if p:
+        if type(p) is tuple:
+            r = m(*p)
+        else:
+            r = m(p)
+    else:
+        r = m()
+
+    if 'result' in methodDef:
+        _makeDto(appDef, methodDef['result'], r)
+
+    return m, r
+
+def _execute_method(appDef, methodDef):
+    m, r = _execute_method2(appDef, methodDef)
+    if m.__name__.startswith('is'):
+        if r:
+            if 'true' in methodDef:
+                run_lib_manager(appDef, methodDef['true'])
+            else:
+                _logger.info('none true action at ' % (m.__name__, ))
+        else:
+            if 'false' in methodDef:
+                run_lib_manager(appDef, methodDef['false'])
+            else:
+                _logger.info('none false action at ' % (m.__name__, ))
+
+def _execute_loop(appDef, methodDef):
+    if 'loop-init' in methodDef:
+        _execute_method2(appDef, methodDef['loop-init'])
+
+    while True:
+        m, r = _execute_method2(appDef, methodDef['loop-next'])
+        m, r = _execute_method2(appDef, methodDef['loop-check'])
+        if r:
+            run_lib_manager(appDef, methodDef['do-loop'])
+        else:
+            break
+
 def run_lib_manager(appDef, app_config = None):
     appConfig = app_config if app_config else appDef['app']['config']
     for methodDef in appConfig:
-        m = _getMethod(appDef, methodDef)
-        #print(m)
-        p = _getParam(appDef, methodDef)
-        #print(p)
-        if p:
-            if type(p) is tuple:
-                r = m(*p)
-            else:
-                r = m(p)
+        if 'do-loop' in methodDef:
+            _execute_loop(appDef, methodDef)
         else:
-            r = m()
-        if m.__name__.startswith('is'):
-            if r:
-                if 'true' in methodDef:
-                    run_lib_manager(appDef, methodDef['true'])
-                else:
-                    _logger.info('none true action at ' % (m.__name__, ))
-            else:
-                if 'false' in methodDef:
-                    run_lib_manager(appDef, methodDef['false'])
-                else:
-                    _logger.info('none false action at ' % (m.__name__, ))
-        elif 'result' in methodDef:
-            _makeDto(appDef, methodDef['result'], r)
+            _execute_method(appDef, methodDef)
 
 if __name__ == '__main__':
     #_findModule('pyLibManager.DBs.PostgreSQL.pgClass')
