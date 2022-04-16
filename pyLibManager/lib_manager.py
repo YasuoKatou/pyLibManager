@@ -173,12 +173,12 @@ def _execute_method(appDef, methodDef):
             if 'true' in methodDef:
                 run_lib_manager(appDef, methodDef['true'])
             else:
-                _logger.info('none true action at ' % (m.__name__, ))
+                _logger.info('none true action at %s' % (m.__name__, ))
         else:
             if 'false' in methodDef:
                 run_lib_manager(appDef, methodDef['false'])
             else:
-                _logger.info('none false action at ' % (m.__name__, ))
+                _logger.info('none false action at %s' % (m.__name__, ))
 
 def _execute_loop(appDef, methodDef):
     if 'loop-init' in methodDef:
