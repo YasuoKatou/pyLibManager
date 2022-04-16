@@ -16,6 +16,21 @@ class BeanCopy:
         else:
             raise XNoSupportedBeanMapTypeError('dict or list')
 
+    def copyMapValue(self, mapValue, copyRoot, toMapPath):
+        '''
+            copyRoot[toMapPath] = mapValue
+            ex) toMapPath : k1.k2.k3
+                copyRoot[k1][k2][k3] = mapValue
+        '''
+        w = copyRoot
+        pd = toMapPath.split('.')
+        for index in range(len(pd) - 1):
+            p = pd[index]
+            if p not in w:
+                w[p] = {}
+            w = w[p]
+        w[pd[-1]] = mapValue
+
     def copyByListMap(self, fromBean, toBean, mapList):
         '''
             map param: [
@@ -77,6 +92,15 @@ if __name__ == '__main__':
     assert t['key2-1'] == '123', '[%s] コピー先の値が不正 (%s)' % (tn, str(t['key2-1']))
     assert t['key2-2'] == 123, '[%s] コピー先の値が不正 (%s)' % (tn, str(t['key2-2']))
     assert t['key3'] == 456, '[%s] コピー先の値が不正 (%s)' % (tn, str(t['key3']))
+
+    tn = 'tesst case 4'
+    p1 = {'k1': 1, 'k2': 'abc'}
+    p2 = {}
+    tc.copyMapValue(p1, p2, 'test')
+    assert p1 == p2['test'], '[%s] コピー失敗.' % (tn, )
+    p2 = {}
+    tc.copyMapValue(p1, p2, 'path1.path2')
+    assert p1 == p2['path1']['path2'], '[%s] コピー失敗.' % (tn, )
 
     print('unit test end')
 
