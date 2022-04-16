@@ -77,6 +77,9 @@ def load_classes(appDef, defPrint=False, newCallback=None):
             name = a[0]
             if name.startswith('_'):
                 continue
+            if 'ignoreClasses' in clazzDef:
+                if name in clazzDef['ignoreClasses']:
+                    continue
             if defPrint:
                 _logger.info('class name : %s [%s]' % (name, mName, ))
             methods = []
@@ -113,6 +116,8 @@ def _getMethod(appDef, methodDef):
 
 def _getParam(appDef, methodDef):
     def _getParamItem(item):
+        if item.startswith('@'):
+            return item[1:]
         r = None
         for w in item.split('.'):
             if r:
