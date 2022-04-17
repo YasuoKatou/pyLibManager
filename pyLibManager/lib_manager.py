@@ -116,6 +116,8 @@ def _getMethod(appDef, methodDef):
 
 def _getParam(appDef, methodDef):
     def _getParamItem(item):
+        if isinstance(item, dict):
+            return item
         if item.startswith('@'):
             return item[1:]
         r = None
@@ -130,7 +132,7 @@ def _getParam(appDef, methodDef):
         return None
     if not methodDef['param']:
         return None
-    if type(methodDef['param']) is list:
+    if isinstance(methodDef['param'], list):
         r = []
         for item in methodDef['param']:
             r.append(_getParamItem(item))
@@ -159,7 +161,7 @@ def _execute_method2(appDef, methodDef):
     p = _getParam(appDef, methodDef)
     #print(p)
     if p:
-        if type(p) is tuple:
+        if isinstance(p, tuple):
             r = m(*p)
         else:
             r = m(p)

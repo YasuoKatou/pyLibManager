@@ -56,6 +56,27 @@ class BeanCopy:
 
             toBean[ft[1]] = v
 
+    def beanEdit(self, source, editMap):
+        def getValue(s, pf):
+            w = s
+            pd = pf.split('.')
+            for index in range(len(pd) - 1):
+                p = pd[index]
+                if p in w:
+                    w = w[p]
+                else:
+                    return None
+            if pd[-1] in w:
+                return w[pd[-1]]
+            else:
+                return None
+
+        r = {}
+        for k, v in editMap.items():
+            x = getValue(source, k)
+            self.copyMapValue(x, r, v)
+        return r
+
 if __name__ == '__main__':
     from datetime import datetime as DT
     print('unit test start')
@@ -101,6 +122,14 @@ if __name__ == '__main__':
     p2 = {}
     tc.copyMapValue(p1, p2, 'path1.path2')
     assert p1 == p2['path1']['path2'], '[%s] コピー失敗.' % (tn, )
+
+    tn = 'tesst case 5'
+    p1 = {'k1': 1, 'k2': 'abc', 'k3': {'k3-1': 'aaa', 'k3-2': 'bbb'}}
+    r = tc.beanEdit(p1, {'k2': 'r1', 'e1': 'r2', 'k3.k3-1': 'r3.r3-1'})
+    assert r['r1'] == p1['k2'], '[%s] コピー1失敗.' % (tn, )
+    assert r['r2'] == None, '[%s] コピー2失敗.' % (tn, )
+    assert isinstance(r['r3'], dict), '[%s] コピー3失敗.' % (tn, )
+    assert r['r3']['r3-1'] == p1['k3']['k3-1'], '[%s] コピー4失敗.' % (tn, )
 
     print('unit test end')
 
